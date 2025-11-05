@@ -1,0 +1,21 @@
+# Etapa 1 — Build
+FROM python:3.11-alpine AS builder
+
+WORKDIR /install
+
+RUN apk add --no-cache gcc musl-dev postgresql-dev
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --prefix=/python_packages -r requirements.txt
+
+# Etapa 2 — Imagem final
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+COPY --from=builder /python_packages /usr/local
+COPY . .
+
+EXPOSE 3000
+
+CMD ["python", "app.py"]

@@ -1,0 +1,35 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: postgres_dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data_dev:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile.dev
+    container_name: flask_api_dev
+    environment:
+      DB_HOST: db
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./api:/app
+    depends_on:
+      - db
+
+volumes:
+  db_data_dev:
